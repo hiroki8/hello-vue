@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
@@ -10,18 +10,109 @@
         <div id="app">
             {{ message }}
         </div>
+        <div id="app-2">
+            <span v-bind:title="message">
+              Hover your mouse over me for a few seconds
+              to see my dynamically bound title!
+            </span>
+          </div>
+          <div id="app-3">
+            <span v-if="seen">Now you see me</span>
+          </div>
+          <div id="app-4">
+            <ol>
+              <li v-for="todo in todos">
+                {{ todo.text }}
+              </li>
+            </ol>
+          </div>
+        <div id="app-5">
+          <p>{{ message }}</p>
+          <button v-on:click="reverseMessage">Reverse Message</button>
+        </div>
+        <div id="app-6">
+            <p>{{ message }}</p>
+            <input v-model="message">
+        </div>
+        <div id="app-7">
+          <ol>
+            <!-- 
+              各 todo-item の内容を表す todo オブジェクトを与えます。
+              これにより内容は動的に変化します。
+              また後述する "key" を各コンポーネントに提供する必要があります。
+            -->
+            <todo-item
+              v-for="item in groceryList"
+              v-bind:todo="item"
+              v-bind:key="item.id"
+            ></todo-item>
+          </ol>
+        </div>
+        <div id="example">
+          <input v-model="message">
+          <p>Original message: "{{ message }}"</p>
+          <p>Computed reversed message: "{{ reversedMessage }}"</p>
+        </div>
+        <div id="demo">{{ fullName }}</div>
+          
         <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
         <script src="index.js"></script>
-    </body>
-</html>  -->
+        <div id="watch-example">
+          <p>
+            Ask a yes/no question:
+            <input v-model="question">
+          </p>
+          <p>{{ answer }}</p>
+        </div>
+        <!-- ajax ライブラリの豊富なエコシステムや、汎用的なユーティリティ	-->
+<!-- メソッドがたくさんあるので、Vue のコアはそれらを再発明せずに	-->
+<!-- 小さく保たれています。この結果として、慣れ親しんでいるものだけを	-->
+<!-- 使えるような自由さを Vue は持ち合わせています。			-->
+<script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+<script>
+var watchExampleVM = new Vue({
+  el: '#watch-example',
+  data: {
+    question: '',
+    answer: 'I cannot give you an answer until you ask a question!'
+  },
+  watch: {
+    // この関数は question が変わるごとに実行されます。
+    question: function (newQuestion, oldQuestion) {
+      this.answer = 'Waiting for you to stop typing...'
+      this.debouncedGetAnswer()
+    }
+  },
+  created: function () {
+    // _.debounce は特にコストの高い処理の実行を制御するための
+    // lodash の関数です。この場合は、どのくらい頻繁に yesno.wtf/api
+    // へのアクセスすべきかを制限するために、ユーザーの入力が完全に
+    // 終わるのを待ってから ajax リクエストを実行しています。
+    // _.debounce (とその親戚である _.throttle )  についての詳細は
+    // https://lodash.com/docs#debounce を見てください。
+    this.debouncedGetAnswer = _.debounce(this.getAnswer, 500)
+  },
+  methods: {
+    getAnswer: function () {
+      if (this.question.indexOf('?') === -1) {
+        this.answer = 'Questions usually contain a question mark. ;-)'
+        return
+      }
+      this.answer = 'Thinking...'
+      var vm = this
+      axios.get('https://yesno.wtf/api')
+        .then(function (response) {
+          vm.answer = _.capitalize(response.data.answer)
+        })
+        .catch(function (error) {
+          vm.answer = 'Error! Could not reach the API. ' + error
+        })
+    }
+  }
+})
+</script>
 
-<!DOCTYPE html>
-<html lang="ja">
-    <head>
-        <meta charset="utf-8">
-        <title>Hello</title>
-    </head>
-    <body>
-        <h1>Hello World from Enginx!!</h1>
     </body>
-</html>
+
+</html> 
